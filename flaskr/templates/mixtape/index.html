@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block header %}
+    <h1>{% block title %}Mixtapes{% endblock %}</h1>
+    {% if g.user %}
+        <a class="action" href="{{ url_for('mixtape.create') }}">Create New Mixtape</a>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    {% for mixtape in mixtapes %}
+        <article class="mixtape">
+            <header>
+                <div>
+                    <h1><a href="{{ url_for('mixtape.view', id=mixtape['id']) }}">{{ mixtape['title'] }}</a></h1>
+                    <div class="about">by {{ mixtape['username'] }} on {{ mixtape['created'].strftime('%Y-%m-%d') }}</div>
+                </div>
+                {% if g.user['id'] == mixtape['author_id'] %}
+                    <a class="action" href="{{ url_for('mixtape.update', id=mixtape['id']) }}">Edit</a>
+                {% endif %}
+            </header>
+            <p class="body">{{ mixtape['body'] }}</p>
+        </article>
+        {% if not loop.last %}
+            <hr>
+        {% endif %}
+    {% endfor %}
+{% endblock %}

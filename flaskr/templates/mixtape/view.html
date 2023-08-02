@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block header %}
+    <h1>{% block title %}{{ mixtape['title'] }}{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+    <article class="mixtape">
+      <header>
+        <div>
+          <div class="about">by {{ mixtape['username'] }} on {{ mixtape['created'].strftime('%Y-%m-%d') }}</div>
+        </div>
+        {% if g.user['id'] == mixtape['author_id'] %}
+          <a class="action" href="{{ url_for('mixtape.update', id=mixtape['id']) }}">Edit</a>
+        {% endif %}
+      </header>
+      <p class="body">{{ mixtape['body'] }}</p>
+    </article>
+{% endblock %}
+
