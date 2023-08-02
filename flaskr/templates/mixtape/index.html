@@ -12,11 +12,11 @@
         <article class="mixtape">
             <header>
                 <div>
-                    <h1><a href="{{ url_for('mixtape.view', id=mixtape['id']) }}">{{ mixtape['title'] }}</a></h1>
+                    <h1><a href="{{ url_for('mixtape.view', url=mixtape['url']) }}">{{ mixtape['title'] }}</a></h1>
                     <div class="about">by {{ mixtape['username'] }} on {{ mixtape['created'].strftime('%Y-%m-%d') }}</div>
                 </div>
                 {% if g.user['id'] == mixtape['author_id'] %}
-                    <a class="action" href="{{ url_for('mixtape.update', id=mixtape['id']) }}">Edit</a>
+                    <a class="action" href="{{ url_for('mixtape.update', url=mixtape['url']) }}">Edit</a>
                 {% endif %}
             </header>
             <p class="body">{{ mixtape['body'] }}</p>
