@@ -1,20 +1,42 @@
 {% extends 'base.html' %}
 
 {% block header %}
-    <h1>{% block title %}{{ mixtape['title'] }}{% endblock %}</h1>
+        <h1>{% block title %}{{ mixtape['title'] }}{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
-    <article class="mixtape">
-      <header>
-        <div>
-          <div class="about">by {{ mixtape['username'] }} on {{ mixtape['created'].strftime('%Y-%m-%d') }}</div>
-        </div>
-        {% if g.user['id'] == mixtape['author_id'] %}
-          <a class="action" href="{{ url_for('mixtape.update', url=mixtape['url']) }}">Edit</a>
-        {% endif %}
-      </header>
-      <p class="body">{{ mixtape['body'] }}</p>
-    </article>
+        <article class="mixtape">
+            <header>
+                <div>
+                    <div class="about">by {{ mixtape['username'] }} on {{ mixtape['created'].strftime('%Y-%m-%d') }}</div>
+                </div>
+                {% if g.user['id'] == mixtape['author_id'] %}
+                    <a class="action" href="{{ url_for('mixtape.update', url=mixtape['url']) }}">Edit</a>
+                {% endif %}
+            </header>
+
+            <br>
+
+            {% for track in tracks %}
+                <article class="track">
+                    <header>
+                        <div>
+                            <iframe src="https://www.youtube.com/embed/{{ track['youtube_id'] }}"></iframe> 
+                            <div class="about">by {{ track['username'] }} on {{ track['created'].strftime('%Y-%m-%d') }}</div>
+                        </div>
+                    </header>
+                </article>
+                {% if not loop.last %}
+                    <hr>
+                {% endif %}
+            {% endfor %}
+
+            <p class="body">{{ mixtape['body'] }}</p>
+            <form method="post">
+                <label for="title">Add to mixtape:</label>
+                <input name="youtubeUrl" id="youtubeUrl" placeholder="youtube.com/watch?v=3__0ulE2UDo" required>
+                <input type="submit" value="Click to add">
+            </form>
+        </article>
 {% endblock %}
 

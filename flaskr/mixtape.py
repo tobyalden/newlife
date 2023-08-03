@@ -7,6 +7,7 @@ from flaskr.auth import login_required
 from flaskr.db import get_db
 
 import shortuuid
+from urllib.parse import urlparse, parse_qs
 
 bp = Blueprint('mixtape', __name__)
 
@@ -14,9 +15,9 @@ bp = Blueprint('mixtape', __name__)
 def index():
     db = get_db()
     mixtapes = db.execute(
-        'SELECT p.id, url, title, body, created, author_id, username'
-        ' FROM mixtape p JOIN user u ON p.author_id = u.id'
-        ' ORDER BY created DESC'
+        'SELECT m.id, m.url, m.title, m.body, m.created, m.author_id, u.username'
+        ' FROM mixtape m JOIN user u ON m.author_id = u.id'
+        ' ORDER BY m.created DESC'
     ).fetchall()
     return render_template('mixtape/index.html', mixtapes=mixtapes)
 
@@ -52,9 +53,9 @@ def get_uuid():
 
 def get_mixtape(id, check_author=True):
     mixtape = get_db().execute(
-        'SELECT p.id, title, body, created, author_id, username'
-        ' FROM mixtape p JOIN user u ON p.author_id = u.id'
-        ' WHERE p.id = ?',
+        'SELECT m.id, m.title, m.body, m.created, m.author_id, u.username'
+        ' FROM mixtape m JOIN user u ON m.author_id = u.id'
+        ' WHERE m.id = ?',
         (id,)
     ).fetchone()
 
@@ -68,9 +69,9 @@ def get_mixtape(id, check_author=True):
 
 def get_mixtape_by_url(url, check_author=True):
     mixtape = get_db().execute(
-        'SELECT p.id, url, title, body, created, author_id, username'
-        ' FROM mixtape p JOIN user u ON p.author_id = u.id'
-        ' WHERE p.url = ?',
+        'SELECT m.id, m.url, m.title, m.body, m.created, m.author_id, u.username'
+        ' FROM mixtape m JOIN user u ON m.author_id = u.id'
+        ' WHERE m.url = ?',
         (url,)
     ).fetchone()
 
@@ -82,10 +83,50 @@ def get_mixtape_by_url(url, check_author=True):
 
     return mixtape
 
-@bp.route('/<url>')
+def get_tracks(mixtape_id, check_author=True):
+    db = get_db()
+    tracks = db.execute(
+        'SELECT t.id, t.youtube_id, t.created, t.author_id, u.username'
+        ' FROM track t JOIN user u ON t.author_id = u.id'
+        ' WHERE t.mixtape_id = ?'
+        ' ORDER BY t.created ASC',
+        (mixtape_id,)
+    ).fetchall()
+
+    # TODO: Probably need to do some validation here
+
+    return tracks
+
+@bp.route('/<url>', methods=('GET', 'POST'))
 def view(url):
     mixtape = get_mixtape_by_url(url, False) # TODO: False here should be based on if the mix is public or not
-    return render_template('mixtape/view.html', mixtape=mixtape)
+    tracks = get_tracks(mixtape['id'])
+    if request.method == 'POST':
+        youtube_url = request.form['youtubeUrl']
+        error = None
+
+        if not youtube_url:
+            error = 'YouTube URL is required.'
+
+        try:
+            youtube_id = get_youtube_id(youtube_url)
+        except:
+            error = "Not a valid YouTube URL"
+
+        if error is not None:
+            flash(error)
+        else:
+            db = get_db()
+
+            db.execute(
+                'INSERT INTO track (author_id, mixtape_id, youtube_id)'
+                ' VALUES (?, ?, ?)',
+                (g.user['id'], mixtape['id'], youtube_id)
+            )
+            db.commit()
+            return redirect(url_for('mixtape.view', url=mixtape['url']))
+
+    return render_template('mixtape/view.html', mixtape=mixtape, tracks=tracks)
 
 @bp.route('/<url>/update', methods=('GET', 'POST'))
 @login_required
@@ -122,3 +163,19 @@ def delete(id):
     db.execute('DELETE FROM mixtape WHERE id = ?', (id,))
     db.commit()
     return redirect(url_for('mixtape.index'))
+
+def get_youtube_id(url):
+    if url.startswith(('youtu', 'www')):
+        url = 'http://' + url
+
+    query = urlparse(url)
+
+    if 'youtube' in query.hostname:
+        if query.path == '/watch':
+            return parse_qs(query.query)['v'][0]
+        elif query.path.startswith(('/embed/', '/v/')):
+            return query.path.split('/')[2]
+    elif 'youtu.be' in query.hostname:
+        return query.path[1:]
+    else:
+        raise ValueError ## TODO: Don't throw ValueError
