@@ -4,35 +4,34 @@ def download():
     from yt_dlp import YoutubeDL
     from pydub import AudioSegment
 
-    # shutil.rmtree('./youtube_rips')
+    if os.path.isdir('./youtube_rips'):
+        shutil.rmtree('./youtube_rips')
 
-    # URLS = [
-        # 'https://www.youtube.com/watch?v=8RMDBqQDtT8',
-        # 'https://www.youtube.com/watch?v=xYNjxk6iIL0',
-        # 'https://www.youtube.com/watch?v=vb5Vlb9atEk',
-        # 'https://www.youtube.com/watch?v=dLX6reRrD88',
-        # 'https://www.youtube.com/watch?v=BLK3E5IkXgo',
-        # 'https://www.youtube.com/watch?v=3E_wHhW_vwE',
-    # ]
+    URLS = [
+        'https://www.youtube.com/watch?v=8RMDBqQDtT8',
+        'https://www.youtube.com/watch?v=xYNjxk6iIL0',
+        'https://www.youtube.com/watch?v=dLX6reRrD88',
+    ]
 
-    # ydl_opts = {
-        # 'paths': {
-            # 'home': './youtube_rips',
-            # 'temp': './temp',
-        # },
-        # 'format': 'm4a/bestaudio/best',
-        # # ℹ️ See help(yt_dlp.postprocessor) for a list of available Postprocessors and their arguments
-        # 'postprocessors': [{  # Extract audio using ffmpeg
-            # 'key': 'FFmpegExtractAudio',
-            # 'preferredcodec': 'wav',
-        # }]
-    # }
+    ydl_opts = {
+        'paths': {
+            'home': './youtube_rips',
+            'temp': './temp',
+        },
+        'format': 'm4a/bestaudio/best',
+        # ℹ️ See help(yt_dlp.postprocessor) for a list of available Postprocessors and their arguments
+        'postprocessors': [{  # Extract audio using ffmpeg
+            'key': 'FFmpegExtractAudio',
+            'preferredcodec': 'wav',
+        }],
+        'outtmpl': {'default': '%(autonumber)s %(title)s.%(ext)s',}
+    }
 
-    # with YoutubeDL(ydl_opts) as ydl:
-        # ydl.download(URLS)
+    with YoutubeDL(ydl_opts) as ydl:
+        ydl.download(URLS)
 
     all_tracks = []
-    for filename in os.listdir('youtube_rips'):
+    for filename in sorted(os.listdir('youtube_rips')):
         if filename.endswith('.wav'):
             track = AudioSegment.from_file('youtube_rips/' + filename)
             all_tracks.append(track)
