@@ -11,7 +11,9 @@
                     <div class="about">by {{ mixtape['username'] }} on {{ mixtape['created'].strftime('%Y-%m-%d') }}</div>
                 </div>
                 {% if g.user['id'] == mixtape['author_id'] %}
-                    <a class="action" href="{{ url_for('mixtape.update', url=mixtape['url']) }}">Edit</a>
+                    <br>
+                    <a class="action" href="{{ url_for('mixtape.update', url=mixtape['url']) }}">Edit</a><br>
+                    <a class="action" onclick="return confirm('Are you sure?');" href="{{ url_for('mixtape.convert', id=mixtape['id']) }}">Convert</a>
                 {% endif %}
             </header>
 

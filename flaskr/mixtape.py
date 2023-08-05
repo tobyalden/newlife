@@ -9,7 +9,15 @@ from flaskr.db import get_db
 import shortuuid
 from urllib.parse import urlparse, parse_qs
 
+from rq import Queue
+import redis
+from flaskr.utils import create_mix_from_youtube_ids
+
 bp = Blueprint('mixtape', __name__)
+
+pool = redis.ConnectionPool(host='localhost', port=6379, db=0)
+redis_conn = redis.Redis()
+job_queue = Queue(connection=redis_conn)
 
 @bp.route('/')
 def index():
@@ -53,7 +61,7 @@ def get_uuid():
 
 def get_mixtape(id, check_author=True):
     mixtape = get_db().execute(
-        'SELECT m.id, m.title, m.body, m.created, m.author_id, u.username'
+        'SELECT m.id, m.url, m.title, m.body, m.created, m.author_id, u.username'
         ' FROM mixtape m JOIN user u ON m.author_id = u.id'
         ' WHERE m.id = ?',
         (id,)
@@ -155,9 +163,24 @@ def update(url):
 
     return render_template('mixtape/update.html', mixtape=mixtape)
 
+@bp.route('/<int:id>/convert', methods=('GET', 'POST'))
+@login_required
+def convert(id):
+    # TODO: Check you are the owner of the mixtape - this could be a decorator
+    mixtape = get_mixtape(id)
+    tracks = get_tracks(mixtape['id'])
+    youtube_ids = []
+    for track in tracks:
+        youtube_ids.append(track['youtube_id'])
+
+    job = job_queue.enqueue(create_mix_from_youtube_ids, youtube_ids, mixtape['url'])
+
+    return redirect(url_for('mixtape.index'))
+
 @bp.route('/<int:id>/delete', methods=('POST',))
 @login_required
 def delete(id):
+    # TODO: Check you are the owner of the mixtape - this could be a decorator
     get_mixtape(id)
     db = get_db()
     db.execute('DELETE FROM mixtape WHERE id = ?', (id,))

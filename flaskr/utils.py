@@ -1,21 +1,17 @@
-def download():
+def create_mix_from_youtube_ids(youtube_ids, mix_filename):
     import os
     import shutil
     from yt_dlp import YoutubeDL
     from pydub import AudioSegment
 
-    if os.path.isdir('./youtube_rips'):
-        shutil.rmtree('./youtube_rips')
+    rip_directory = './youtube_rips/' + mix_filename + '/'
 
-    URLS = [
-        'https://www.youtube.com/watch?v=8RMDBqQDtT8',
-        'https://www.youtube.com/watch?v=xYNjxk6iIL0',
-        'https://www.youtube.com/watch?v=dLX6reRrD88',
-    ]
+    if os.path.isdir(rip_directory):
+        shutil.rmtree(rip_directory)
 
     ydl_opts = {
         'paths': {
-            'home': './youtube_rips',
+            'home': rip_directory,
             'temp': './temp',
         },
         'format': 'm4a/bestaudio/best',
@@ -28,12 +24,12 @@ def download():
     }
 
     with YoutubeDL(ydl_opts) as ydl:
-        ydl.download(URLS)
+        ydl.download(youtube_ids)
 
     all_tracks = []
-    for filename in sorted(os.listdir('youtube_rips')):
+    for filename in sorted(os.listdir(rip_directory)):
         if filename.endswith('.wav'):
-            track = AudioSegment.from_file('youtube_rips/' + filename)
+            track = AudioSegment.from_file(rip_directory + filename)
             all_tracks.append(track)
 
     default_crossfade_time = 10 * 1000
@@ -56,8 +52,10 @@ def download():
                 )
             mixed_tracks = mixed_tracks.append(track, crossfade=crossfade_time)
 
-    mixed_tracks.export("mix.mp3", format="mp3", bitrate="320k")
+    mixed_tracks.export('mixes/' + mix_filename + ".mp3", format="mp3", bitrate="320k")
 
-download()
+    if os.path.isdir(rip_directory):
+        shutil.rmtree(rip_directory)
+
+# download()
 # breakpoint()
-
