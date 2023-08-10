@@ -13,11 +13,12 @@
                 {% if g.user['id'] == mixtape['author_id'] %}
                     <br>
                     <a class="action" href="{{ url_for('mixtape.update', url=mixtape['url']) }}">Edit</a><br>
-                    {% if not mixtape['locked'] %}
-                        <a class="action" onclick="return confirm('Are you sure?');" href="{{ url_for('mixtape.convert', id=mixtape['id']) }}">Convert</a>
-                    {% endif %}
                     {% if mixtape['converted'] %}
                         <a class="action" href="{{ url_for('mixtape.download', url=mixtape['url']) }}">Download</a><br>
+                    {% elif not mixtape['locked'] and tracks %}
+                        <a class="action" onclick="return confirm('Are you sure?');" href="{{ url_for('mixtape.convert', id=mixtape['id']) }}">Convert</a>
+                    {% elif mixtape['locked'] and not mixtape['converted'] %}
+                        Mixtape currently converting...
                     {% endif %}
                 {% endif %}
             </header>
