@@ -1,0 +1,6 @@
+- remove all ID routes, use only URL
+- add description to tracks
+- validate all actions in routes (logged in, owns mixtape, mixtape not locked/is available, etc).
+- add comments section to mixtapes?
+- add CSS
+- prevent fullpage reloads where possible
