@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for
+    Blueprint, flash, g, redirect, render_template, request, url_for, send_from_directory, current_app
 )
 from werkzeug.exceptions import abort
 
@@ -170,6 +170,7 @@ def update(url):
 @login_required
 def convert(id):
     # TODO: Check you are the owner of the mixtape - this could be a decorator
+    # TODO: Don't allow converting empty mixtapes
     mixtape = get_mixtape(id)
     tracks = get_tracks(mixtape['id'])
 
@@ -198,6 +199,12 @@ def convert(id):
         return redirect(url_for('mixtape.view', url=mixtape['url']))
 
     return render_template('mixtape/update.html', mixtape=mixtape)
+
+@bp.route('/<url>/download', methods=('GET', 'POST'))
+def download(url):
+    mixtape = get_mixtape_by_url(url, False) # TODO: False here should be based on if the mix is public or not
+    return send_from_directory(current_app.config['MIXES_FOLDER'], mixtape['url'] + '.mp3', as_attachment=True)
+    # return redirect(url_for('mixtape.index'))
 
 @bp.route('/<int:id>/delete', methods=('POST',))
 @login_required

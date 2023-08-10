@@ -17,7 +17,7 @@
                         <a class="action" onclick="return confirm('Are you sure?');" href="{{ url_for('mixtape.convert', id=mixtape['id']) }}">Convert</a>
                     {% endif %}
                     {% if mixtape['converted'] %}
-                        Download
+                        <a class="action" href="{{ url_for('mixtape.download', url=mixtape['url']) }}">Download</a><br>
                     {% endif %}
                 {% endif %}
             </header>
