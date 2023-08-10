@@ -11,7 +11,7 @@ from urllib.parse import urlparse, parse_qs
 
 from rq import Queue
 import redis
-from flaskr.utils import create_mix_from_youtube_ids
+from flaskr.utils import convert_mixtape
 
 bp = Blueprint('mixtape', __name__)
 
@@ -61,7 +61,7 @@ def get_uuid():
 
 def get_mixtape(id, check_author=True):
     mixtape = get_db().execute(
-        'SELECT m.id, m.url, m.title, m.body, m.created, m.author_id, u.username'
+        'SELECT m.id, m.locked, m.url, m.title, m.body, m.created, m.author_id, u.username'
         ' FROM mixtape m JOIN user u ON m.author_id = u.id'
         ' WHERE m.id = ?',
         (id,)
@@ -77,7 +77,7 @@ def get_mixtape(id, check_author=True):
 
 def get_mixtape_by_url(url, check_author=True):
     mixtape = get_db().execute(
-        'SELECT m.id, m.url, m.title, m.body, m.created, m.author_id, u.username'
+        'SELECT m.id, m.url, m.locked, m.converted, m.title, m.body, m.created, m.author_id, u.username'
         ' FROM mixtape m JOIN user u ON m.author_id = u.id'
         ' WHERE m.url = ?',
         (url,)
@@ -119,7 +119,10 @@ def view(url):
         try:
             youtube_id = get_youtube_id(youtube_url)
         except:
-            error = "Not a valid YouTube URL"
+            error = "Not a valid YouTube URL."
+
+        if mixtape['locked']:
+            error = 'Mixtape is locked and cannot be added to.'
 
         if error is not None:
             flash(error)
@@ -159,7 +162,7 @@ def update(url):
                 (title, body, mixtape['id'])
             )
             db.commit()
-            return redirect(url_for('mixtape.index'))
+            return redirect(url_for('mixtape.view', url=mixtape['url']))
 
     return render_template('mixtape/update.html', mixtape=mixtape)
 
@@ -169,13 +172,32 @@ def convert(id):
     # TODO: Check you are the owner of the mixtape - this could be a decorator
     mixtape = get_mixtape(id)
     tracks = get_tracks(mixtape['id'])
-    youtube_ids = []
-    for track in tracks:
-        youtube_ids.append(track['youtube_id'])
 
-    job = job_queue.enqueue(create_mix_from_youtube_ids, youtube_ids, mixtape['url'])
+    error = None
 
-    return redirect(url_for('mixtape.index'))
+    if mixtape['locked']:
+        error = 'Mixtape is locked and cannot be converted.'
+
+    if error is not None:
+        flash(error)
+    else:
+        db = get_db()
+        db.execute(
+            'UPDATE mixtape SET locked = ?'
+            ' WHERE id = ?',
+            (True, mixtape['id'])
+        )
+        db.commit()
+
+        youtube_ids = []
+        for track in tracks:
+            youtube_ids.append(track['youtube_id'])
+
+        job = job_queue.enqueue(convert_mixtape, youtube_ids, mixtape['id'], mixtape['url'])
+
+        return redirect(url_for('mixtape.view', url=mixtape['url']))
+
+    return render_template('mixtape/update.html', mixtape=mixtape)
 
 @bp.route('/<int:id>/delete', methods=('POST',))
 @login_required

@@ -1,10 +1,13 @@
-def create_mix_from_youtube_ids(youtube_ids, mix_filename):
+from flaskr import create_app
+from flaskr.db import get_db
+
+def convert_mixtape(youtube_ids, mixtape_id, mixtape_url):
     import os
     import shutil
     from yt_dlp import YoutubeDL
     from pydub import AudioSegment
 
-    rip_directory = './youtube_rips/' + mix_filename + '/'
+    rip_directory = './youtube_rips/' + mixtape_url + '/'
 
     if os.path.isdir(rip_directory):
         shutil.rmtree(rip_directory)
@@ -15,8 +18,7 @@ def create_mix_from_youtube_ids(youtube_ids, mix_filename):
             'temp': './temp',
         },
         'format': 'm4a/bestaudio/best',
-        # ℹ️ See help(yt_dlp.postprocessor) for a list of available Postprocessors and their arguments
-        'postprocessors': [{  # Extract audio using ffmpeg
+        'postprocessors': [{
             'key': 'FFmpegExtractAudio',
             'preferredcodec': 'wav',
         }],
@@ -52,10 +54,17 @@ def create_mix_from_youtube_ids(youtube_ids, mix_filename):
                 )
             mixed_tracks = mixed_tracks.append(track, crossfade=crossfade_time)
 
-    mixed_tracks.export('mixes/' + mix_filename + ".mp3", format="mp3", bitrate="320k")
+    mixed_tracks.export('mixes/' + mixtape_url + ".mp3", format="mp3", bitrate="320k")
 
     if os.path.isdir(rip_directory):
         shutil.rmtree(rip_directory)
 
-# download()
-# breakpoint()
+    app = create_app()
+    with app.app_context():
+        db = get_db()
+        db.execute(
+            'UPDATE mixtape SET converted = ?'
+            ' WHERE id = ?',
+            (True, mixtape_id)
+        )
+        db.commit()

@@ -13,7 +13,12 @@
                 {% if g.user['id'] == mixtape['author_id'] %}
                     <br>
                     <a class="action" href="{{ url_for('mixtape.update', url=mixtape['url']) }}">Edit</a><br>
-                    <a class="action" onclick="return confirm('Are you sure?');" href="{{ url_for('mixtape.convert', id=mixtape['id']) }}">Convert</a>
+                    {% if not mixtape['locked'] %}
+                        <a class="action" onclick="return confirm('Are you sure?');" href="{{ url_for('mixtape.convert', id=mixtape['id']) }}">Convert</a>
+                    {% endif %}
+                    {% if mixtape['converted'] %}
+                        Download
+                    {% endif %}
                 {% endif %}
             </header>
 
@@ -33,12 +38,15 @@
                 {% endif %}
             {% endfor %}
 
-            <p class="body">{{ mixtape['body'] }}</p>
-            <form method="post">
-                <label for="title">Add to mixtape:</label>
-                <input name="youtubeUrl" id="youtubeUrl" placeholder="youtube.com/watch?v=3__0ulE2UDo" required>
-                <input type="submit" value="Click to add">
-            </form>
+            {% if not mixtape['locked'] %}
+                <p class="body">{{ mixtape['body'] }}</p>
+                <form method="post">
+                    <label for="title">Add to mixtape:</label>
+                    <input name="youtubeUrl" id="youtubeUrl" placeholder="youtube.com/watch?v=3__0ulE2UDo" required>
+                    <input type="submit" value="Click to add">
+                </form>
+            {% endif %}
+
         </article>
 {% endblock %}
 

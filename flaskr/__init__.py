@@ -24,11 +24,6 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    # a simple page that says hello
-    @app.route('/hello')
-    def hello():
-        return 'Hello, World!'
-
     from . import db
     db.init_app(app)
 
@@ -38,5 +33,8 @@ def create_app(test_config=None):
     from . import mixtape
     app.register_blueprint(mixtape.bp)
     app.add_url_rule('/', endpoint='index')
+
+    from . import utils
+    # utils.init_app(app)
 
     return app
