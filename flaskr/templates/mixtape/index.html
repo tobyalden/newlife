@@ -13,6 +13,7 @@
             <header>
                 <div>
                     <h1><a href="{{ url_for('mixtape.view', url=mixtape['url']) }}">{{ mixtape['title'] }}</a></h1>
+                    {{ mixtape['track_count'] }} tracks
                     <div class="about">by {{ mixtape['username'] }} on {{ mixtape['created'].strftime('%Y-%m-%d') }}</div>
                 </div>
             </header>

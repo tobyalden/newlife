@@ -28,8 +28,12 @@ job_queue = Queue(connection=redis_conn)
 def index():
     db = get_db()
     mixtapes = db.execute(
-        'SELECT m.id, m.url, m.title, m.body, m.created, m.author_id, u.username'
-        ' FROM mixtape m JOIN user u ON m.author_id = u.id'
+        'SELECT m.id, m.url, m.title, m.body, m.created, m.author_id, u.username, count(t.mixtape_id) as track_count'
+        # 'SELECT m.id, m.url, m.title, m.body, m.created, m.author_id, u.username'
+        ' FROM mixtape m'
+        ' LEFT JOIN user u ON m.author_id = u.id'
+        ' LEFT JOIN track t ON m.id = t.mixtape_id'
+        ' GROUP BY m.id'
         ' ORDER BY m.created DESC'
     ).fetchall()
     return render_template('mixtape/index.html', mixtapes=mixtapes)
