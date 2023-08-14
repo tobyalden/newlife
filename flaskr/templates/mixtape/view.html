@@ -5,6 +5,7 @@
         {% if mixtape['art'] %}
             <img src="{{ url_for('static', filename='/mixtape_art/' + mixtape['art']) }}"/>
         {% endif %}
+        <br>{{ tracks|length }} tracks
 {% endblock %}
 
 {% block content %}
