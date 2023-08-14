@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% from 'macros.html' import user_card %}
 
 {% block header %}
         <h1>{% block title %}{{ mixtape['title'] }}{% endblock %}</h1>
@@ -12,7 +13,7 @@
         <article class="mixtape">
             <header>
                 <div>
-                    <div class="about">by {{ mixtape['username'] }} on {{ mixtape['created'].strftime('%Y-%m-%d') }}</div>
+                    <div class="about">by {{ user_card(mixtape['username'], 'user.png') }} on {{ mixtape['created'].strftime('%Y-%m-%d') }}</div>
                 </div>
                 {% if g.user['id'] == mixtape['author_id'] %}
                     <br>

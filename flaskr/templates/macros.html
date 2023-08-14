@@ -1,0 +1,4 @@
+{% macro user_card(username, avatar) -%}
+<h4>{{ username }}</h4>
+    <img class="avatar" src="{{ url_for('static', filename='/user_avatars/' + avatar) }}"/>
+{%- endmacro %}

@@ -6,15 +6,16 @@ CLEANUP:
 
 FEATURES (MVP):
 - add CSS
+- add art to index page
 - add user avatars
+- allow removing tracks as creator of mixtape (or adder of track)
+- allow deleting mixtape as creator of mixtape
+- add download links / currently converting to index
+
 - add user pages
 - add description to tracks
 - add comments section to mixtapes?
-- add download links / currently converting to index
-- add track amounts / totals to index
 - add limit to number of tracks that can be added
-- add art to index page
-- allow removing tracks as creator of mixtape
 - allow mixtapes to be public/private
 - suggest making private mixtapes public on conversion
 

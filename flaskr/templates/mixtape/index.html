@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% from 'macros.html' import user_card %}
 
 {% block header %}
     <h1>{% block title %}Mixtapes{% endblock %}</h1>
@@ -14,7 +15,7 @@
                 <div>
                     <h1><a href="{{ url_for('mixtape.view', url=mixtape['url']) }}">{{ mixtape['title'] }}</a></h1>
                     {{ mixtape['track_count'] }} tracks
-                    <div class="about">by {{ mixtape['username'] }} on {{ mixtape['created'].strftime('%Y-%m-%d') }}</div>
+                    <div class="about">by {{ user_card(mixtape['username'], 'user.png') }} on {{ mixtape['created'].strftime('%Y-%m-%d') }}</div>
                 </div>
             </header>
             <p class="body">{{ mixtape['body'] }}</p>
