@@ -14,6 +14,9 @@
             <header>
                 <div>
                     <h1><a href="{{ url_for('mixtape.view', url=mixtape['url']) }}">{{ mixtape['title'] }}</a></h1>
+                    {% if mixtape['art'] %}
+                        <img class="mixtapeArt" src="{{ url_for('static', filename='/mixtape_art/' + mixtape['art']) }}"/>
+                    {% endif %}
                     {{ mixtape['track_count'] }} tracks
                     <div class="about">by {{ user_card(mixtape['username'], 'user.png') }} on {{ mixtape['created'].strftime('%Y-%m-%d') }}</div>
                 </div>

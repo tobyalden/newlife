@@ -1,18 +1,17 @@
 CLEANUP:
 - remove all ID routes, use only URL
 - validate all actions in routes (logged in, owns mixtape, mixtape not locked/is available, etc).
-- standardize language (mixes vs mixtape)
+- standardize language (mixes vs mixtape, remove "flaskr" name)
 - put mixes in static folders
 
 FEATURES (MVP):
-- add CSS
-- add art to index page
++ add art to index page
 - add user avatars
+- add user pages
 - allow removing tracks as creator of mixtape (or adder of track)
 - allow deleting mixtape as creator of mixtape
 - add download links / currently converting to index
-
-- add user pages
+- add CSS
 - add description to tracks
 - add comments section to mixtapes?
 - add limit to number of tracks that can be added

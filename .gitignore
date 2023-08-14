@@ -16,3 +16,5 @@ build/
 mixes/
 youtube_rips/
 dump.rdb
+
+flaskr/static/mixtape_art
