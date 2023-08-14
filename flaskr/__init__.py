@@ -2,6 +2,7 @@ import os
 
 from flask import Flask
 
+ALLOWED_IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'bmp'}
 
 def create_app(test_config=None):
     # create and configure the app
@@ -9,7 +10,8 @@ def create_app(test_config=None):
     app.config.from_mapping(
         SECRET_KEY='dev',
         DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
-        MIXES_FOLDER='../mixes',
+        MIXES_FOLDER='../mixes', #TODO: Remove instances of "mix/mixes", standardize as "mixtape"
+        MIXTAPE_ART_FOLDER='./flaskr/static/mixtape_art',
     )
 
     if test_config is None:

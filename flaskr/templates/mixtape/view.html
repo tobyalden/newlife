@@ -2,6 +2,9 @@
 
 {% block header %}
         <h1>{% block title %}{{ mixtape['title'] }}{% endblock %}</h1>
+        {% if mixtape['art'] %}
+            <img src="{{ url_for('static', filename='/mixtape_art/' + mixtape['art']) }}"/>
+        {% endif %}
 {% endblock %}
 
 {% block content %}

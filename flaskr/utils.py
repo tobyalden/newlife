@@ -7,6 +7,7 @@ def convert_mixtape(youtube_ids, mixtape_id, mixtape_url):
     from yt_dlp import YoutubeDL
     from pydub import AudioSegment
 
+    # TODO: Rewrite using os.path.join()
     rip_directory = './youtube_rips/' + mixtape_url + '/'
 
     if os.path.isdir(rip_directory):

@@ -1,6 +1,16 @@
+- add album art
+- add user pages
+- add user avatars
 - remove all ID routes, use only URL
 - add description to tracks
 - validate all actions in routes (logged in, owns mixtape, mixtape not locked/is available, etc).
 - add comments section to mixtapes?
 - add CSS
 - prevent fullpage reloads where possible
+- add download links / currently converting to index. also track amounts / totals
+- add limit to number of tracks that can be added
+- allow removing
+- allow mixtapes to be publicly/privately viewable AND publicly/privately editable
+    - this suddenly creates the problem where you would have to either add users manually as editors or have an edit URL that was secret and separate...
+    - OR maybe you just say "make public on conversion!". and if public/private is editable to begin with that's just a convenience feature
+- random mixtapes??

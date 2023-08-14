@@ -13,6 +13,7 @@ CREATE TABLE mixtape (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     author_id INTEGER NOT NULL,
     url CHAR(8) UNIQUE NOT NULL,
+    art CHAR(12),
     title TEXT NOT NULL,
     body TEXT,
     locked BOOLEAN NOT NULL DEFAULT FALSE,

@@ -1,17 +1,22 @@
+import os
+
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, url_for, send_from_directory, current_app
 )
-from werkzeug.exceptions import abort
 
+from werkzeug.exceptions import abort
+from werkzeug.utils import secure_filename
+
+from flaskr import ALLOWED_IMAGE_EXTENSIONS
 from flaskr.auth import login_required
 from flaskr.db import get_db
+from flaskr.utils import convert_mixtape
 
 import shortuuid
 from urllib.parse import urlparse, parse_qs
 
 from rq import Queue
 import redis
-from flaskr.utils import convert_mixtape
 
 bp = Blueprint('mixtape', __name__)
 
@@ -29,6 +34,12 @@ def index():
     ).fetchall()
     return render_template('mixtape/index.html', mixtapes=mixtapes)
 
+def get_image_extension(filename):
+    return filename.rsplit('.', 1)[1].lower()
+
+def allowed_image_file(filename):
+    return '.' in filename and get_image_extension(filename) in ALLOWED_IMAGE_EXTENSIONS
+
 @bp.route('/create', methods=('GET', 'POST'))
 @login_required
 def create():
@@ -41,16 +52,24 @@ def create():
         if not title:
             error = 'Title is required.'
 
+        art = None
+        if 'art' in request.files:
+            file = request.files['art']
+            if allowed_image_file(file.filename):
+                art = url + '.' + get_image_extension(file.filename)
+                file.save(os.path.join(current_app.config['MIXTAPE_ART_FOLDER'], art))
+
         if error is not None:
             flash(error)
         else:
             db = get_db()
             db.execute(
-                'INSERT INTO mixtape (title, body, author_id, url)'
-                ' VALUES (?, ?, ?, ?)',
-                (title, body, g.user['id'], url)
+                'INSERT INTO mixtape (title, body, author_id, url, art)'
+                ' VALUES (?, ?, ?, ?, ?)',
+                (title, body, g.user['id'], url, art)
             )
             db.commit()
+
             return redirect(url_for('mixtape.index'))
 
     return render_template('mixtape/create.html')
@@ -77,7 +96,7 @@ def get_mixtape(id, check_author=True):
 
 def get_mixtape_by_url(url, check_author=True):
     mixtape = get_db().execute(
-        'SELECT m.id, m.url, m.locked, m.converted, m.title, m.body, m.created, m.author_id, u.username'
+        'SELECT m.id, m.url, m.art, m.locked, m.converted, m.title, m.body, m.created, m.author_id, u.username'
         ' FROM mixtape m JOIN user u ON m.author_id = u.id'
         ' WHERE m.url = ?',
         (url,)
@@ -152,14 +171,25 @@ def update(url):
         if not title:
             error = 'Title is required.'
 
+        art = None
+        if 'art' in request.files:
+            file = request.files['art']
+            if allowed_image_file(file.filename):
+                art = url + '.' + get_image_extension(file.filename)
+                if mixtape['art']:
+                    old_filename = os.path.join(current_app.config['MIXTAPE_ART_FOLDER'], mixtape['art'])
+                    if os.path.exists(old_filename):
+                        os.remove(old_filename)
+                file.save(os.path.join(current_app.config['MIXTAPE_ART_FOLDER'], art))
+
         if error is not None:
             flash(error)
         else:
             db = get_db()
             db.execute(
-                'UPDATE mixtape SET title = ?, body = ?'
+                'UPDATE mixtape SET title = ?, body = ?, art = ?'
                 ' WHERE id = ?',
-                (title, body, mixtape['id'])
+                (title, body, art, mixtape['id'])
             )
             db.commit()
             return redirect(url_for('mixtape.view', url=mixtape['url']))
