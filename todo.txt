@@ -14,3 +14,5 @@
     - this suddenly creates the problem where you would have to either add users manually as editors or have an edit URL that was secret and separate...
     - OR maybe you just say "make public on conversion!". and if public/private is editable to begin with that's just a convenience feature
 - random mixtapes??
+- standardize language (mixes vs mixtape)
+- put mixes in static folders

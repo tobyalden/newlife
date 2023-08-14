@@ -70,7 +70,7 @@ def create():
             )
             db.commit()
 
-            return redirect(url_for('mixtape.index'))
+            return redirect(url_for('mixtape.view', url=url))
 
     return render_template('mixtape/create.html')
 
@@ -234,7 +234,6 @@ def convert(id):
 def download(url):
     mixtape = get_mixtape_by_url(url, False) # TODO: False here should be based on if the mix is public or not
     return send_from_directory(current_app.config['MIXES_FOLDER'], mixtape['url'] + '.mp3', as_attachment=True)
-    # return redirect(url_for('mixtape.index'))
 
 @bp.route('/<int:id>/delete', methods=('POST',))
 @login_required
