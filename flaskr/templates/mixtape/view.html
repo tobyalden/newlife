@@ -4,7 +4,7 @@
 {% block header %}
         <h1>{% block title %}{{ mixtape['title'] }}{% endblock %}</h1>
         {% if mixtape['art'] %}
-            <img src="{{ url_for('static', filename='/mixtape_art/' + mixtape['art']) }}"/>
+            <img class="mixtapeArt" src="{{ url_for('static', filename='/mixtape_art/' + mixtape['art']) }}"/>
         {% endif %}
         <br>{{ tracks|length }} tracks
 {% endblock %}
@@ -13,7 +13,7 @@
         <article class="mixtape">
             <header>
                 <div>
-                    <div class="about">by {{ user_card(mixtape['username'], 'default.png') }} on {{ mixtape['created'].strftime('%Y-%m-%d') }}</div>
+                    <div class="about">by {{ user_card(mixtape['username'], mixtape['avatar']) }} on {{ mixtape['created'].strftime('%Y-%m-%d') }}</div>
                 </div>
                 {% if g.user['id'] == mixtape['author_id'] %}
                     <br>
@@ -36,6 +36,12 @@
                         <div>
                             <iframe src="https://www.youtube.com/embed/{{ track['youtube_id'] }}"></iframe> 
                             <div class="about">by {{ track['username'] }} on {{ track['created'].strftime('%Y-%m-%d') }}</div>
+                            {% if g.user and (mixtape['author_id'] == g.user['id'] or track['author_id'] == g.user['id']) %}
+                                <form method="post">
+                                    <input name="deleteTrack" type="submit" value="Delete track">
+                                    <input name="trackId" value="{{ track['id'] }}" hidden>
+                                </form>
+                            {% endif %}
                         </div>
                     </header>
                 </article>

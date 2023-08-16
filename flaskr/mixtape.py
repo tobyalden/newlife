@@ -27,7 +27,7 @@ job_queue = Queue(connection=redis_conn)
 def index():
     db = get_db()
     mixtapes = db.execute(
-        'SELECT m.id, m.url, m.art, m.title, m.body, m.created, m.author_id, u.username, count(t.mixtape_id) as track_count'
+        'SELECT m.id, m.url, m.art, m.title, m.body, m.created, m.author_id, u.username, u.avatar, count(t.mixtape_id) as track_count'
         # 'SELECT m.id, m.url, m.title, m.body, m.created, m.author_id, u.username'
         ' FROM mixtape m'
         ' LEFT JOIN user u ON m.author_id = u.id'
@@ -93,7 +93,7 @@ def get_mixtape(id, check_author=True):
 
 def get_mixtape_by_url(url, check_author=True):
     mixtape = get_db().execute(
-        'SELECT m.id, m.url, m.art, m.locked, m.converted, m.title, m.body, m.created, m.author_id, u.username'
+        'SELECT m.id, m.url, m.art, m.locked, m.converted, m.title, m.body, m.created, m.author_id, u.username, u.avatar'
         ' FROM mixtape m JOIN user u ON m.author_id = u.id'
         ' WHERE m.url = ?',
         (url,)
@@ -121,37 +121,69 @@ def get_tracks(mixtape_id, check_author=True):
 
     return tracks
 
+def get_track(track_id):
+    db = get_db()
+    track = db.execute(
+        'SELECT t.id, t.author_id, t.mixtape_id, t.youtube_id, t.created'
+        ' FROM track t'
+        ' WHERE t.id = ?',
+        (track_id,)
+    ).fetchone()
+
+    if track is None:
+        abort(404, f"Track with ID {track_id} doesn't exist.")
+
+    return track
+    # TODO: Probably need to do some validation here
+
 @bp.route('/<url>', methods=('GET', 'POST'))
 def view(url):
     mixtape = get_mixtape_by_url(url, False) # TODO: False here should be based on if the mix is public or not
     tracks = get_tracks(mixtape['id'])
     if request.method == 'POST':
-        youtube_url = request.form['youtubeUrl']
-        error = None
+        if 'trackId' in request.form:
+            # Delete track from mixtape
+            track = get_track(request.form['trackId'])
+            if g.user is None or (mixtape['author_id'] != g.user['id'] and track['author_id'] != g.user['id']):
+                abort(403)
 
-        if not youtube_url:
-            error = 'YouTube URL is required.'
-
-        try:
-            youtube_id = get_youtube_id(youtube_url)
-        except:
-            error = "Not a valid YouTube URL."
-
-        if mixtape['locked']:
-            error = 'Mixtape is locked and cannot be added to.'
-
-        if error is not None:
-            flash(error)
-        else:
             db = get_db()
-
             db.execute(
-                'INSERT INTO track (author_id, mixtape_id, youtube_id)'
-                ' VALUES (?, ?, ?)',
-                (g.user['id'], mixtape['id'], youtube_id)
+                'DELETE FROM track '
+                ' WHERE id = ?',
+                (track['id'],)
             )
             db.commit()
+
             return redirect(url_for('mixtape.view', url=mixtape['url']))
+        if 'youtubeUrl' in request.form:
+            # Add track to mixtape
+            youtube_url = request.form['youtubeUrl']
+            error = None
+
+            if not youtube_url:
+                error = 'YouTube URL is required.'
+
+            try:
+                youtube_id = get_youtube_id(youtube_url)
+            except:
+                error = "Not a valid YouTube URL."
+
+            if mixtape['locked']:
+                error = 'Mixtape is locked and cannot be added to.'
+
+            if error is not None:
+                flash(error)
+            else:
+                db = get_db()
+
+                db.execute(
+                    'INSERT INTO track (author_id, mixtape_id, youtube_id)'
+                    ' VALUES (?, ?, ?)',
+                    (g.user['id'], mixtape['id'], youtube_id)
+                )
+                db.commit()
+                return redirect(url_for('mixtape.view', url=mixtape['url']))
 
     return render_template('mixtape/view.html', mixtape=mixtape, tracks=tracks)
 
@@ -183,11 +215,18 @@ def update(url):
             flash(error)
         else:
             db = get_db()
-            db.execute(
-                'UPDATE mixtape SET title = ?, body = ?, art = ?'
-                ' WHERE id = ?',
-                (title, body, art, mixtape['id'])
-            )
+            if art:
+                db.execute(
+                    'UPDATE mixtape SET title = ?, body = ?, art = ?'
+                    ' WHERE id = ?',
+                    (title, body, art, mixtape['id'])
+                )
+            else:
+                db.execute(
+                    'UPDATE mixtape SET title = ?, body = ?'
+                    ' WHERE id = ?',
+                    (title, body, mixtape['id'])
+                )
             db.commit()
             return redirect(url_for('mixtape.view', url=mixtape['url']))
 

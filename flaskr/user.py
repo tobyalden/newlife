@@ -34,4 +34,12 @@ def view(username):
                         os.remove(old_filename)
                 file.save(os.path.join(current_app.config['USER_AVATAR_FOLDER'], avatar))
 
+                db = get_db()
+                db.execute(
+                    'UPDATE user SET avatar = ?'
+                    ' WHERE id = ?',
+                    (avatar, user['id'])
+                )
+                db.commit()
+
     return render_template('user/view.html', user=user)
