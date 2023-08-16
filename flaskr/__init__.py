@@ -12,6 +12,7 @@ def create_app(test_config=None):
         DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
         MIXES_FOLDER='../mixes', #TODO: Remove instances of "mix/mixes", standardize as "mixtape"
         MIXTAPE_ART_FOLDER='./flaskr/static/mixtape_art',
+        USER_AVATAR_FOLDER='./flaskr/static/user_avatars',
     )
 
     if test_config is None:
@@ -36,6 +37,9 @@ def create_app(test_config=None):
     from . import mixtape
     app.register_blueprint(mixtape.bp)
     app.add_url_rule('/', endpoint='index')
+
+    from . import user
+    app.register_blueprint(user.bp)
 
     from . import utils
     # utils.init_app(app)

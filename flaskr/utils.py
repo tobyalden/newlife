@@ -1,5 +1,11 @@
-from flaskr import create_app
+from flaskr import (create_app, ALLOWED_IMAGE_EXTENSIONS)
 from flaskr.db import get_db
+
+def get_image_extension(filename):
+    return filename.rsplit('.', 1)[1].lower()
+
+def allowed_image_file(filename):
+    return '.' in filename and get_image_extension(filename) in ALLOWED_IMAGE_EXTENSIONS
 
 def convert_mixtape(youtube_ids, mixtape_id, mixtape_url):
     import os

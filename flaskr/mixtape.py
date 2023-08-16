@@ -7,10 +7,9 @@ from flask import (
 from werkzeug.exceptions import abort
 from werkzeug.utils import secure_filename
 
-from flaskr import ALLOWED_IMAGE_EXTENSIONS
 from flaskr.auth import login_required
 from flaskr.db import get_db
-from flaskr.utils import convert_mixtape
+from flaskr.utils import (convert_mixtape, get_image_extension, allowed_image_file)
 
 import shortuuid
 from urllib.parse import urlparse, parse_qs
@@ -37,12 +36,6 @@ def index():
         ' ORDER BY m.created DESC'
     ).fetchall()
     return render_template('mixtape/index.html', mixtapes=mixtapes)
-
-def get_image_extension(filename):
-    return filename.rsplit('.', 1)[1].lower()
-
-def allowed_image_file(filename):
-    return '.' in filename and get_image_extension(filename) in ALLOWED_IMAGE_EXTENSIONS
 
 @bp.route('/create', methods=('GET', 'POST'))
 @login_required

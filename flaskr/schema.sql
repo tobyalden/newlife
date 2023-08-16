@@ -6,6 +6,7 @@ CREATE TABLE user (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
+    avatar TEXT,
     created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -13,7 +14,7 @@ CREATE TABLE mixtape (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     author_id INTEGER NOT NULL,
     url CHAR(8) UNIQUE NOT NULL,
-    art CHAR(12),
+    art TEXT,
     title TEXT NOT NULL,
     body TEXT,
     locked BOOLEAN NOT NULL DEFAULT FALSE,

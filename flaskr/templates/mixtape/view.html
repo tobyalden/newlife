@@ -13,7 +13,7 @@
         <article class="mixtape">
             <header>
                 <div>
-                    <div class="about">by {{ user_card(mixtape['username'], 'user.png') }} on {{ mixtape['created'].strftime('%Y-%m-%d') }}</div>
+                    <div class="about">by {{ user_card(mixtape['username'], 'default.png') }} on {{ mixtape['created'].strftime('%Y-%m-%d') }}</div>
                 </div>
                 {% if g.user['id'] == mixtape['author_id'] %}
                     <br>
