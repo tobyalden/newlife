@@ -5,7 +5,7 @@ CLEANUP:
 - put mixes in static folders
 
 FEATURES (MVP):
-- allow deleting mixtape as creator of mixtape
++ allow deleting mixtape as creator of mixtape
     - delete: converted mp3 (if exists), all tracks, mixtape itself
 - add limit to number of tracks that can be added
 - automatically convert on track maximum

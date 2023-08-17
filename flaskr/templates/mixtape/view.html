@@ -36,7 +36,7 @@
                         <div>
                             <iframe src="https://www.youtube.com/embed/{{ track['youtube_id'] }}"></iframe> 
                             <div class="about">by {{ track['username'] }} on {{ track['created'].strftime('%Y-%m-%d') }}</div>
-                            {% if g.user and (mixtape['author_id'] == g.user['id'] or track['author_id'] == g.user['id']) %}
+                            {% if g.user and not mixtape['locked'] and (mixtape['author_id'] == g.user['id'] or track['author_id'] == g.user['id']) %}
                                 <form method="post">
                                     <input name="deleteTrack" type="submit" value="Delete track">
                                     <input name="trackId" value="{{ track['id'] }}" hidden>

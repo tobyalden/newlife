@@ -158,11 +158,20 @@ def view(url):
                 (mixtape['id'],)
             )
             db.commit()
+
+            mixtape_path = os.path.join(current_app.config['MIXES_FOLDER'], mixtape['url'] + '.mp3')
+            if os.path.exists(mixtape_path):
+                os.remove(mixtape_path)
+
             return redirect(url_for('mixtape.index'))
         elif 'deleteTrack' in request.form:
             # Delete track from mixtape
             track = get_track(request.form['trackId'])
-            if g.user is None or (mixtape['author_id'] != g.user['id'] and track['author_id'] != g.user['id']):
+            if (
+                g.user is None or
+                mixtape['locked'] or
+                (mixtape['author_id'] != g.user['id'] and track['author_id'] != g.user['id'])
+            ):
                 abort(403)
 
             db = get_db()
@@ -287,7 +296,12 @@ def convert(id):
 @bp.route('/<url>/download', methods=('GET', 'POST'))
 def download(url):
     mixtape = get_mixtape_by_url(url, False) # TODO: False here should be based on if the mix is public or not
-    return send_from_directory(current_app.config['MIXES_FOLDER'], mixtape['url'] + '.mp3', as_attachment=True)
+    return send_from_directory(
+        os.path.join(os.path.dirname(current_app.instance_path), current_app.config['MIXES_FOLDER']),
+        mixtape['url'] + '.mp3',
+        as_attachment=True
+    )
+    # return redirect(url_for('mixtape.index'))
 
 @bp.route('/<int:id>/delete', methods=('POST',))
 @login_required

@@ -10,7 +10,7 @@ def create_app(test_config=None):
     app.config.from_mapping(
         SECRET_KEY='dev',
         DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
-        MIXES_FOLDER='../mixes', #TODO: Remove instances of "mix/mixes", standardize as "mixtape"
+        MIXES_FOLDER='./flaskr/static/mixtapes',
         MIXTAPE_ART_FOLDER='./flaskr/static/mixtape_art',
         USER_AVATAR_FOLDER='./flaskr/static/user_avatars',
     )

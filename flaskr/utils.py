@@ -61,12 +61,14 @@ def convert_mixtape(youtube_ids, mixtape_id, mixtape_url):
                 )
             mixed_tracks = mixed_tracks.append(track, crossfade=crossfade_time)
 
-    mixed_tracks.export('mixes/' + mixtape_url + ".mp3", format="mp3", bitrate="320k")
+    app = create_app()
+
+    mixtape_path = os.path.join(app.config['MIXES_FOLDER'], mixtape_url + ".mp3")
+    mixed_tracks.export(mixtape_path, format="mp3", bitrate="320k")
 
     if os.path.isdir(rip_directory):
         shutil.rmtree(rip_directory)
 
-    app = create_app()
     with app.app_context():
         db = get_db()
         db.execute(
