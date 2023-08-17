@@ -15,7 +15,7 @@
                 <div>
                     <div class="about">by {{ user_card(mixtape['username'], mixtape['avatar']) }} on {{ mixtape['created'].strftime('%Y-%m-%d') }}</div>
                 </div>
-                {% if g.user['id'] == mixtape['author_id'] %}
+                {% if g.user and g.user['id'] == mixtape['author_id'] %}
                     <br>
                     <a class="action" href="{{ url_for('mixtape.update', url=mixtape['url']) }}">Edit</a><br>
                     {% if mixtape['converted'] %}
@@ -50,12 +50,18 @@
                 {% endif %}
             {% endfor %}
 
-            {% if not mixtape['locked'] %}
+            {% if g.user and not mixtape['locked'] %}
                 <p class="body">{{ mixtape['body'] }}</p>
                 <form method="post">
                     <label for="title">Add to mixtape:</label>
                     <input name="youtubeUrl" id="youtubeUrl" placeholder="youtube.com/watch?v=3__0ulE2UDo" required>
                     <input type="submit" value="Click to add">
+                </form>
+            {% endif %}
+
+            {% if g.user['id'] == mixtape['author_id'] %}
+                <form method="post">
+                    <input name="deleteMixtape" type="submit" value="Delete mixtape" onclick="return confirm('Are you sure?');">
                 </form>
             {% endif %}
 

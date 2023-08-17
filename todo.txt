@@ -5,21 +5,22 @@ CLEANUP:
 - put mixes in static folders
 
 FEATURES (MVP):
-+ add art to index page
-+ add user avatars
-+ add user pages
-- allow removing tracks as creator of mixtape (or adder of track)
-- add tracklist to finished mixtapes
-- rename mixtapes to correct name on download, and add art + tracklist to description
 - allow deleting mixtape as creator of mixtape
+    - delete: converted mp3 (if exists), all tracks, mixtape itself
+- add limit to number of tracks that can be added
+- automatically convert on track maximum
+- rename mixtapes to correct name on download, and add art + tracklist to description
+- add tracklist to finished mixtapes
 - add download links / currently converting to index
+- number tracks
+
 - add CSS
 - add description to tracks
 - add comments section to mixtapes?
-- add limit to number of tracks that can be added
 - allow mixtapes to be public/private
 - suggest making private mixtapes public on conversion
 - show all mixtapes contributed/created as user
+- paginate index page
 
 FEATURES (EXTRA):
 - prevent fullpage reloads where possible

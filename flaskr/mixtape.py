@@ -141,7 +141,25 @@ def view(url):
     mixtape = get_mixtape_by_url(url, False) # TODO: False here should be based on if the mix is public or not
     tracks = get_tracks(mixtape['id'])
     if request.method == 'POST':
-        if 'trackId' in request.form:
+        if 'deleteMixtape' in request.form:
+            # Delete mixtape
+            if g.user is None or mixtape['author_id'] != g.user['id']:
+                abort(403)
+
+            db = get_db()
+            db.execute(
+                'DELETE FROM mixtape '
+                ' WHERE id = ?',
+                (mixtape['id'],)
+            )
+            db.execute(
+                'DELETE FROM track '
+                ' WHERE mixtape_id = ?',
+                (mixtape['id'],)
+            )
+            db.commit()
+            return redirect(url_for('mixtape.index'))
+        elif 'deleteTrack' in request.form:
             # Delete track from mixtape
             track = get_track(request.form['trackId'])
             if g.user is None or (mixtape['author_id'] != g.user['id'] and track['author_id'] != g.user['id']):
@@ -156,7 +174,7 @@ def view(url):
             db.commit()
 
             return redirect(url_for('mixtape.view', url=mixtape['url']))
-        if 'youtubeUrl' in request.form:
+        elif 'youtubeUrl' in request.form:
             # Add track to mixtape
             youtube_url = request.form['youtubeUrl']
             error = None
