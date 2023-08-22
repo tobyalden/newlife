@@ -5,14 +5,13 @@ CLEANUP:
 - put mixes in static folders
 
 FEATURES (MVP):
-+ allow deleting mixtape as creator of mixtape
-    - delete: converted mp3 (if exists), all tracks, mixtape itself
 - add limit to number of tracks that can be added
 - automatically convert on track maximum
 - rename mixtapes to correct name on download, and add art + tracklist to description
 - add tracklist to finished mixtapes
 - add download links / currently converting to index
 - number tracks
+- dockerize dependencies (yt-dlp, ffmpeg/ffprobe, redis, requirements.txt for pip)
 
 - add CSS
 - add description to tracks

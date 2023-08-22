@@ -42,6 +42,5 @@ def create_app(test_config=None):
     app.register_blueprint(user.bp)
 
     from . import utils
-    # utils.init_app(app)
 
     return app
